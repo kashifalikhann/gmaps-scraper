@@ -6,12 +6,12 @@ from urllib.parse import urlparse
 
 from apify import Actor
 
-from client import GoogleMapsClient
-from parser import extract_app_state, extract_place_from_array, parse_hours
-from email_extractor import extract_emails_from_website
-from email_verifier import verify_email_deliverability
-from crm_formatter import format_crm_row
-from utils import get_place_stable_id
+from src.client import GoogleMapsClient
+from src.parser import extract_app_state, extract_place_from_array, parse_hours
+from src.email_extractor import extract_emails_from_website
+from src.email_verifier import verify_email_deliverability
+from src.crm_formatter import format_crm_row
+from src.utils import get_place_stable_id
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
