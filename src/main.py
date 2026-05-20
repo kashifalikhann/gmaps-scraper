@@ -19,7 +19,18 @@ logger = logging.getLogger(__name__)
 
 async def main() -> None:
     async with Actor:
+        # Load actor input; if none is supplied (e.g., cloud run without attached JSON),
+        # fall back to a local input.json file bundled with the actor.
         actor_input = await Actor.get_input() or {}
+        if not actor_input:
+            try:
+                import json, pathlib
+                local_path = pathlib.Path('input.json')
+                if local_path.is_file():
+                    actor_input = json.loads(local_path.read_text())
+                    logger.info('Loaded input from bundled input.json')
+            except Exception as e:
+                logger.exception('Failed to load local input.json')
         search_queries = actor_input.get('searchStringsArray', [])
         location_query = actor_input.get('locationQuery', '')
         max_results = actor_input.get('maxCrawledPlacesPerSearch', 100)
@@ -29,7 +40,7 @@ async def main() -> None:
         crm_format = actor_input.get('crmFormat', 'none')
 
         if not search_queries:
-            logger.error('No search queries provided')
+            Actor.log.error('No search queries provided – aborting')
             return
 
         use_proxy = Actor.is_at_home()
