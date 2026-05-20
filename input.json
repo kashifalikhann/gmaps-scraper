@@ -1,0 +1,9 @@
+{
+  "searchStringsArray": ["coffee shop"],
+  "locationQuery": "Seattle, WA",
+  "maxCrawledPlacesPerSearch": 3,
+  "extractEmails": false,
+  "verifyEmails": "off",
+  "incrementalMode": "off",
+  "crmFormat": "none"
+}

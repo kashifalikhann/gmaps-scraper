@@ -1,5 +1,6 @@
 import json
 import re
+import logging
 from urllib.parse import quote
 
 from curl_cffi import requests
@@ -19,7 +20,6 @@ class GoogleMapsClient:
     def __init__(self, max_concurrency: int = 5, use_proxy: bool = False):
         self.session = requests.AsyncSession(
             impersonate='chrome120',
-            max_concurrency=max_concurrency,
         )
         self.proxy = CIRCULAR_PROXY if use_proxy else None
 
@@ -63,7 +63,8 @@ class GoogleMapsClient:
             if data:
                 return {'lat': float(data[0]['lat']), 'lng': float(data[0]['lon'])}
         except Exception as e:
-            pass
+            logging.exception('Geocode request failed')
+            return None
         return None
 
     async def fetch_search_page(
@@ -115,6 +116,11 @@ class GoogleMapsClient:
                 proxy=self.proxy,
             )
             resp.raise_for_status()
-            return resp.text
+            text = resp.text
+            # Defensive size limit to avoid huge payloads
+            if len(text) > 5_000_000:
+                logger.warning('Website content too large, truncating')
+                return None
+            return text
         except Exception:
             return None

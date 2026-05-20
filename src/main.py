@@ -32,7 +32,7 @@ async def main() -> None:
             logger.error('No search queries provided')
             return
 
-        use_proxy = bool(Actor.config.proxy and Actor.config.proxy.useApifyProxy)
+        use_proxy = Actor.is_at_home()
         client = GoogleMapsClient(use_proxy=use_proxy)
 
         try:
@@ -75,7 +75,7 @@ async def main() -> None:
                         continue
 
                     place_id = place.get('placeId') or ''
-                    stable_id = get_place_stable_id(place.get('url', ''))
+                    stable_id = get_place_stable_id(place.get('url') or '')
                     place['_placeId'] = stable_id
 
                     is_new = stable_id not in seen_place_ids
@@ -152,7 +152,7 @@ def _extract_search_results(state: list) -> list[dict]:
     seen = set()
     deduped = []
     for r in results:
-        key = r.get('title', '') + r.get('phone', '') + r.get('address', '')
+        key = r.get('title', '') + (r.get('phone') or '') + (r.get('address') or '')
         if key and key not in seen:
             seen.add(key)
             deduped.append(r)
