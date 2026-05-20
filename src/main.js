@@ -191,14 +191,14 @@ function buildSearchUrl(query, domain) {
 }
 
 const processedUrls = new Set();
-const pendingListings = new Map();
+const pendingEnrichment = new Map();
 let totalScraped = 0;
 let totalWithEmail = 0;
 
 const router = createPlaywrightRouter();
 
 router.addHandler('search', async ({ page, request, session, enqueueLinks, pushData, log: l }) => {
-  const { query, maxResults, options, domain } = request.userData;
+  const { query, options, domain } = request.userData;
   l.info(`Search: "${query}"`);
 
   const searchUrl = buildSearchUrl(query, domain);
@@ -247,7 +247,7 @@ router.addHandler('search', async ({ page, request, session, enqueueLinks, pushD
   let stale = 0;
   while (stale < 10) {
     const count = await page.$$eval('a[href*="/maps/place/"]', els => els.length);
-    if (count >= maxResults) break;
+    if (count >= 500) break;
     if (count > prevCount) { prevCount = count; stale = 0; }
     else stale++;
     await page.evaluate(() => {
@@ -257,14 +257,16 @@ router.addHandler('search', async ({ page, request, session, enqueueLinks, pushD
     await page.waitForTimeout(2000);
   }
 
-  const urls = await page.$$eval('a[href*="/maps/place/"]', (els, max) =>
-    els.slice(0, max).map(el => el.getAttribute('href')).filter(Boolean)
+  const allUrls = await page.$$eval('a[href*="/maps/place/"]', els =>
+    els.map(el => el.getAttribute('href')).filter(Boolean)
       .map(h => h.startsWith('http') ? h : `https://www.google.com${h}`)
-      .filter((v, i, a) => a.indexOf(v) === i),
-    maxResults
+      .filter((v, i, a) => a.indexOf(v) === i)
   );
 
-  l.info(`Found ${urls.length} listings for "${query}"`);
+  const remaining = Math.max(0, options.maxResults - totalScraped);
+  const urls = allUrls.slice(0, remaining);
+
+  l.info(`Found ${urls.length} listings for "${query}" (${allUrls.length} available, budget ${remaining})`);
   Actor.setStatusMessage(`Search "${query}": ${urls.length} listings found`);
 
   for (const url of urls) {
@@ -283,8 +285,8 @@ router.addHandler('search', async ({ page, request, session, enqueueLinks, pushD
 router.addHandler('listing', async ({ page, request, session, pushData, log: l }) => {
   const { query, options } = request.userData;
 
-  if (options.maxTotalResults && totalScraped >= options.maxTotalResults) {
-    l.info(`Hit global cap (${options.maxTotalResults}), skipping ${request.url}`);
+  if (totalScraped >= options.maxResults) {
+    l.info(`Hit global cap (${options.maxResults}), skipping ${request.url}`);
     return;
   }
 
@@ -400,8 +402,10 @@ router.addHandler('listing', async ({ page, request, session, pushData, log: l }
 
   totalScraped++;
 
+  await pushData(data);
+
   if (options.extractEmails && data.website) {
-    pendingListings.set(request.url, data);
+    pendingEnrichment.set(request.url, data);
     const q = await Actor.openRequestQueue();
     await q.addRequest({
       url: data.website,
@@ -409,8 +413,6 @@ router.addHandler('listing', async ({ page, request, session, pushData, log: l }
       uniqueKey: `email:${data.website}`,
       userData: { listingUrl: request.url },
     });
-  } else {
-    await pushData(data);
   }
 
   Actor.setStatusMessage(
@@ -420,8 +422,6 @@ router.addHandler('listing', async ({ page, request, session, pushData, log: l }
 
 router.addHandler('website', async ({ page, pushData, request, log: l }) => {
   const { listingUrl } = request.userData;
-  const listing = pendingListings.get(listingUrl);
-  if (!listing) return;
 
   l.info(`Emails from: ${request.url}`);
 
@@ -429,16 +429,12 @@ router.addHandler('website', async ({ page, pushData, request, log: l }) => {
     await page.goto(request.url, { waitUntil: 'domcontentloaded', timeout: 20000 });
     await page.waitForTimeout(2000);
   } catch {
-    l.warning(`Could not load ${request.url} — pushing listing without emails`);
-    pendingListings.delete(listingUrl);
-    await pushData(listing);
+    l.warning(`Could not load ${request.url}`);
     return;
   }
 
   if (await detectCaptcha(page)) {
     l.warning(`CAPTCHA on ${request.url}`);
-    pendingListings.delete(listingUrl);
-    await pushData(listing);
     return;
   }
 
@@ -447,25 +443,26 @@ router.addHandler('website', async ({ page, pushData, request, log: l }) => {
   const jsonldEmails = extractEmailFromJsonLd(jsonld);
   const allEmails = [...new Set([...htmlEmails, ...jsonldEmails])];
 
-  if (allEmails.length > 0) {
-    listing.emails = allEmails
-      .map(sanitizeEmail)
-      .filter(Boolean);
-    listing.emailSource = jsonldEmails.length > 0 ? 'jsonld+html' : 'html';
-    totalWithEmail++;
-  }
+  const cleanEmails = allEmails
+    .map(sanitizeEmail)
+    .filter(Boolean);
 
-  pendingListings.delete(listingUrl);
-  await pushData(listing);
+  if (cleanEmails.length > 0) {
+    const listing = pendingEnrichment.get(listingUrl);
+    if (listing) {
+      listing.emails = cleanEmails;
+      listing.emailSource = jsonldEmails.length > 0 ? 'jsonld+html' : 'html';
+      await pushData(listing);
+      totalWithEmail++;
+    }
+  }
 });
 
-async function flushPending(dataset) {
-  if (pendingListings.size === 0) return;
-  log.info(`Flushing ${pendingListings.size} pending listings (email extraction failed/skipped)`);
-  for (const [url, data] of pendingListings) {
-    await dataset.pushData(data);
+async function flushPendingEnrichment() {
+  if (pendingEnrichment.size > 0) {
+    log.info(`${pendingEnrichment.size} website requests still pending — listing data already saved`);
+    pendingEnrichment.clear();
   }
-  pendingListings.clear();
 }
 
 async function main() {
@@ -473,7 +470,6 @@ async function main() {
   const {
     searchQueries = ['plumbers in Austin, TX'],
     maxResults = 50,
-    maxTotalResults = 0,
     extractEmails = true,
     extractPhone = true,
     extractWebsite = true,
@@ -492,9 +488,6 @@ async function main() {
   if (maxConcurrency < 1 || maxConcurrency > 20) {
     throw new Error('maxConcurrency must be between 1 and 20');
   }
-  if (maxTotalResults < 0) {
-    throw new Error('maxTotalResults must be 0 (unlimited) or a positive number');
-  }
   if (domain && !/^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(domain)) {
     throw new Error(`Invalid domain format: "${domain}". Use format like "google.co.uk"`);
   }
@@ -502,13 +495,13 @@ async function main() {
   const options = {
     extractEmails, extractPhone, extractWebsite, extractRating,
     extractCoordinates, extractCategory, extractHours,
-    maxResults, maxTotalResults,
+    maxResults,
   };
 
-  const totalCap = maxTotalResults > 0 ? maxTotalResults : searchQueries.length * maxResults;
+  const totalCap = maxResults;
 
   log.info('=== Google Maps Scraper ===');
-  log.info(`Queries: ${searchQueries.length}, Max/query: ${maxResults}, Global cap: ${maxTotalResults || 'unlimited'}`);
+  log.info(`Queries: ${searchQueries.length}, Total limit: ${maxResults}`);
   log.info(`Concurrency: ${maxConcurrency}, Domain: ${domain || 'google.com'}, Email: ${extractEmails}`);
   log.info(`Fields: ${['phone', 'website', 'rating', 'coordinates', 'category', 'hours']
     .filter(k => options[`extract${k.charAt(0).toUpperCase() + k.slice(1)}`])
@@ -548,15 +541,7 @@ async function main() {
       },
     ],
     failedRequestHandler: async ({ request, log: l }) => {
-      l.error(`Failed after retries: ${request.url} (${request.label})`);
-      if (request.label === 'website') {
-        const listing = pendingListings.get(request.userData?.listingUrl);
-        if (listing) {
-          pendingListings.delete(request.userData.listingUrl);
-          const dataset = await Dataset.open();
-          await dataset.pushData(listing);
-        }
-      }
+      l.warning(`Failed after retries: ${request.url} (${request.label})`);
     },
   };
 
@@ -572,11 +557,12 @@ async function main() {
   const start = searchQueries.map(q => ({
     url: buildSearchUrl(q, domain),
     label: 'search',
-    userData: { query: q, maxResults, options, domain },
+    userData: { query: q, options, domain },
   }));
 
   await crawler.run(start);
-  await flushPending(await Dataset.open());
+
+  await flushPendingEnrichment();
 
   const results = (await Dataset.getData()).items;
   const listings = results.filter(r => !r._error);
