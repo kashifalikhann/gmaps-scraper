@@ -3,9 +3,9 @@
   "name": "gmaps-scraper",
   "title": "Google Maps Scraper",
   "description": "Scrapes Google Maps listings including all data points and hidden emails via business website crawling.",
-  "version": "1.0.0",
+  "version": "1.0",
   "meta": {
-    "generatedBy": "OpenCode with Claude Sonnet 4.5"
+    "generatedBy": "DataSiphon"
   },
   "input": "./input_schema.json",
   "output": "./output_schema.json",
