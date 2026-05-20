@@ -1,8 +1,8 @@
 {
   "actorSpecification": 1,
   "name": "gmaps-scraper",
-  "title": "Google Maps Scraper",
-  "description": "Scrapes Google Maps listings including all data points and hidden emails via business website crawling.",
+  "title": "Google Maps Scraper — HTTP, Verified Emails, Incremental, CRM Export",
+  "description": "Lightning-fast HTTP-only Google Maps scraper using TLS impersonation. Extract business name, phone, website, address, rating, category, coordinates, hours + website emails with DNS MX verification, incremental delta mode, and one-click CRM export. No browser needed.",
   "version": "1.0",
   "meta": {
     "generatedBy": "DataSiphon"
@@ -12,5 +12,8 @@
   "storages": {
     "dataset": "./dataset_schema.json"
   },
-  "dockerfile": "../Dockerfile"
+  "dockerfile": "../Dockerfile",
+  "seoTitle": "Google Maps Scraper — HTTP, Verified Emails, Delta Mode, CRM Export",
+  "seoDescription": "HTTP-only Google Maps scraper with email verification (DNS MX), incremental/delta tracking, HubSpot/Salesforce/Pipedrive export. Fast, cheap, no browser.",
+  "categories": ["DATA_EXTRACTION", "MARKETING", "E_COMMERCE", "SALES_LEAD_GENERATION", "CRM"]
 }

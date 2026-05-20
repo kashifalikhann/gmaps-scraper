@@ -3,85 +3,58 @@
   "type": "object",
   "schemaVersion": 1,
   "properties": {
-    "searchQueries": {
-      "title": "Search Queries",
+    "searchStringsArray": {
+      "title": "Search Terms",
       "type": "array",
-      "description": "List of search terms to query on Google Maps (e.g. plumbers in Austin, coffee shops NYC). Each query runs independently.",
+      "description": "List of search terms to query on Google Maps (e.g. plumbers in Austin, coffee shops NYC). Each runs independently and results are deduplicated.",
       "prefill": ["plumbers in Austin, TX", "coffee shops in San Francisco, CA"],
       "editor": "stringList"
     },
-    "maxResults": {
-      "title": "Max Results (Total)",
+    "locationQuery": {
+      "title": "Location",
+      "type": "string",
+      "description": "Free-text location (city, state, country). Geocoded via OpenStreetMap.",
+      "editor": "textfield",
+      "prefill": ""
+    },
+    "maxCrawledPlacesPerSearch": {
+      "title": "Max Places Per Search",
       "type": "integer",
-      "description": "Hard limit on total listings across ALL queries. Will stop once this many listings are scraped. Never exceeds available results.",
-      "default": 50,
+      "description": "Maximum number of places to extract per search term.",
+      "default": 100,
       "minimum": 1,
-      "maximum": 500
+      "maximum": 5000
     },
     "extractEmails": {
       "title": "Extract Emails",
       "type": "boolean",
-      "description": "Visit each business website and attempt to extract email addresses. Increases run time significantly.",
+      "description": "Visit each business website and attempt to extract email addresses. Increases run time.",
       "default": true
     },
-    "extractPhone": {
-      "title": "Extract Phone Numbers",
-      "type": "boolean",
-      "description": "Extract phone numbers from listings.",
-      "default": true
-    },
-    "extractWebsite": {
-      "title": "Extract Website URLs",
-      "type": "boolean",
-      "description": "Extract business website URLs.",
-      "default": true
-    },
-    "extractRating": {
-      "title": "Extract Rating & Reviews",
-      "type": "boolean",
-      "description": "Extract star rating and review count.",
-      "default": true
-    },
-    "extractCoordinates": {
-      "title": "Extract Coordinates",
-      "type": "boolean",
-      "description": "Extract latitude/longitude of each listing.",
-      "default": true
-    },
-    "extractCategory": {
-      "title": "Extract Category",
-      "type": "boolean",
-      "description": "Extract business category (e.g. Restaurant, Plumber).",
-      "default": true
-    },
-    "extractHours": {
-      "title": "Extract Business Hours",
-      "type": "boolean",
-      "description": "Extract opening hours.",
-      "default": false
-    },
-    "maxConcurrency": {
-      "title": "Max Concurrency",
-      "type": "integer",
-      "description": "Maximum number of concurrent pages. Higher = faster but more likely to trigger rate limits.",
-      "default": 3,
-      "minimum": 1,
-      "maximum": 20
-    },
-    "proxyCountry": {
-      "title": "Proxy Country",
+    "verifyEmails": {
+      "title": "Email Verification",
       "type": "string",
-      "editor": "textfield",
-      "description": "ISO country code for proxy (e.g. US, GB, DE). Leave empty for automatic.",
-      "default": ""
+      "enum": ["off", "flag", "filter"],
+      "enumTitles": ["Off — skip verification", "Flag — mark deliverability status only", "Filter — remove non-deliverable emails"],
+      "description": "Verify extracted emails via DNS MX lookup. 'Flag' adds deliverability info. 'Filter' only keeps emails that can receive mail (removes disposable/invalid).",
+      "default": "off"
     },
-    "domain": {
-      "title": "Google Domain",
+    "incrementalMode": {
+      "title": "Incremental Mode",
       "type": "string",
-      "editor": "textfield",
-      "description": "Custom Google domain (e.g. google.co.uk, google.de). Leave empty for google.com.",
-      "default": ""
+      "enum": ["off", "flag", "new-only"],
+      "enumTitles": ["Off — scrape everything", "Flag — mark new vs previously seen", "New Only — only scrape new places"],
+      "description": "Track previously scraped places using Apify KV store. 'Flag' adds an _isNew field. 'New Only' returns only places not seen in previous runs.",
+      "default": "off"
+    },
+    "crmFormat": {
+      "title": "CRM Export Format",
+      "type": "string",
+      "enum": ["none", "hubspot", "salesforce", "pipedrive"],
+      "enumTitles": ["None — standard output", "HubSpot", "Salesforce", "Pipedrive"],
+      "description": "Add pre-formatted CRM import rows to each result for one-click CSV import.",
+      "default": "none"
     }
   },
-  "required": ["searchQueries"]
+  "required": ["searchStringsArray"]
 }

@@ -1,10 +1,8 @@
-FROM apify/actor-node-playwright-chrome:20
+FROM apify/actor-python:3.12
 
-COPY package.json ./
-RUN npm install --omit=dev
+COPY requirements.txt ./
+RUN pip install -r requirements.txt
 
 COPY . ./
 
-ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-
-CMD ["node", "src/main.js"]
+CMD ["python", "-m", "src.main"]

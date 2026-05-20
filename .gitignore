@@ -1,6 +1,14 @@
 node_modules/
 storage/
-.DS_Store
-*.log
-dist/
+.apify/
 .env
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.log
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
