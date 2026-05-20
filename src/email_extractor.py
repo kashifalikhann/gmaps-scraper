@@ -1,4 +1,4 @@
-from utils import (
+from src.utils import (
     extract_emails_from_html,
     extract_jsonld_from_html,
     extract_email_from_jsonld,

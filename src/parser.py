@@ -2,7 +2,7 @@ import json
 import re
 from urllib.parse import urljoin, urlparse
 
-from utils import clean_website_url, get_place_stable_id
+from src.utils import clean_website_url, get_place_stable_id
 
 
 def extract_app_state(html: str) -> list | None:

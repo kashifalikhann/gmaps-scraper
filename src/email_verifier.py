@@ -1,6 +1,6 @@
 import asyncio
 import time
-from utils import DISPOSABLE_DOMAINS
+from src.utils import DISPOSABLE_DOMAINS
 
 MX_CACHE: dict[str, tuple[bool, float]] = {}
 MX_CACHE_TTL = 3600
