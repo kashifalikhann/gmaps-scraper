@@ -7,8 +7,16 @@
       "title": "Search Terms",
       "type": "array",
       "description": "List of search terms to query on Google Maps (e.g. plumbers in Austin, coffee shops NYC). Each runs independently and results are deduplicated.",
-      "prefill": ["plumbers in Austin, TX", "coffee shops in San Francisco, CA"],
-      "editor": "stringList"
+      "prefill": ["plumbers in Austin, TX"],
+      "default": ["plumbers in Austin, TX"],
+      "editor": "stringList",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "maxItems": 50,
+      "uniqueItems": true
     },
     "locationQuery": {
       "title": "Location",
