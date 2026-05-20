@@ -132,14 +132,14 @@ def sanitize_email(email: str) -> str | None:
 
 def clean_website_url(url: str) -> str:
     try:
-        from urllib.parse import urlparse, urlencode, urlunset, parse_qs
+        from urllib.parse import urlparse, urlencode, urlunparse, parse_qs
         parsed = urlparse(url)
         params = parse_qs(parsed.query)
         for key in list(params.keys()):
             if key in TRACKING_PARAMS or key.startswith('utm_'):
                 del params[key]
         query = urlencode(params, doseq=True) if params else ''
-        return urlunset(parsed._replace(query=query))
+        return urlunparse(parsed._replace(query=query))
     except Exception:
         return url
 
