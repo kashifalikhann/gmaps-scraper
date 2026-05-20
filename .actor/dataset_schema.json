@@ -3,117 +3,123 @@
   "title": "Google Maps Scraper Results",
   "description": "Scraped Google Maps business listings with contact details and metadata",
   "fields": {
-    "searchString": {
-      "title": "Search Query",
-      "description": "The Google Maps search query that returned this listing",
-      "type": "string"
-    },
-    "title": {
-      "title": "Business Name",
-      "description": "Name of the business",
-      "type": "string"
-    },
-    "address": {
-      "title": "Address",
-      "description": "Full street address of the business",
-      "type": "string"
-    },
-    "phone": {
-      "title": "Phone Number",
-      "description": "Business phone number",
-      "type": "string"
-    },
-    "website": {
-      "title": "Website URL",
-      "description": "Business website URL with tracking parameters stripped",
-      "type": "string"
-    },
-    "emails": {
-      "title": "Email Addresses",
-      "description": "Email addresses extracted from the business website",
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "emailSource": {
-      "title": "Email Source Method",
-      "description": "Method used to extract the email (mailto, jsonld, html, cloudflare)",
-      "type": "string"
-    },
-    "emailVerification": {
-      "title": "Email Verification Status",
-      "description": "Result of deliverability check",
-      "type": "string"
-    },
-    "categoryName": {
-      "title": "Business Category",
-      "description": "Google Maps category (e.g. Plumber, Restaurant, Coffee Shop)",
-      "type": "string"
-    },
-    "totalScore": {
-      "title": "Star Rating",
-      "description": "Average star rating on Google Maps (1.0–5.0)",
-      "type": "number"
-    },
-    "reviewsCount": {
-      "title": "Review Count",
-      "description": "Number of Google Maps reviews",
-      "type": "number"
-    },
-    "location": {
-      "title": "Coordinates",
-      "description": "Latitude and longitude object",
-      "type": "object",
-      "properties": {
-        "lat": { "type": "number" },
-        "lng": { "type": "number" }
-      }
-    },
-    "openingHours": {
-      "title": "Opening Hours",
-      "description": "Array of opening hours by day",
-      "type": "array",
-      "items": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "searchString": {
+        "type": "string",
+        "title": "Search Query",
+        "description": "The Google Maps search query that returned this listing"
+      },
+      "title": {
+        "type": "string",
+        "title": "Business Name",
+        "description": "Name of the business"
+      },
+      "address": {
+        "type": "string",
+        "title": "Address",
+        "description": "Full street address of the business"
+      },
+      "phone": {
+        "type": "string",
+        "title": "Phone Number",
+        "description": "Business phone number"
+      },
+      "website": {
+        "type": "string",
+        "title": "Website URL",
+        "description": "Business website URL with tracking parameters stripped"
+      },
+      "emails": {
+        "type": "array",
+        "title": "Email Addresses",
+        "description": "Email addresses extracted from the business website",
+        "items": { "type": "string" }
+      },
+      "emailSource": {
+        "type": "string",
+        "title": "Email Source Method",
+        "description": "Method used to extract the email (mailto, jsonld, html, cloudflare)"
+      },
+      "emailVerification": {
+        "type": "string",
+        "title": "Email Verification Status",
+        "description": "Result of deliverability check"
+      },
+      "categoryName": {
+        "type": "string",
+        "title": "Business Category",
+        "description": "Google Maps category (e.g. Plumber, Restaurant, Coffee Shop)"
+      },
+      "totalScore": {
+        "type": "number",
+        "title": "Star Rating",
+        "description": "Average star rating on Google Maps (1.0-5.0)"
+      },
+      "reviewsCount": {
+        "type": "number",
+        "title": "Review Count",
+        "description": "Number of Google Maps reviews"
+      },
+      "location": {
         "type": "object",
+        "title": "Coordinates",
+        "description": "Latitude and longitude object",
         "properties": {
-          "day": { "type": "string" },
-          "hours": { "type": "string" }
+          "lat": { "type": "number" },
+          "lng": { "type": "number" }
         }
+      },
+      "openingHours": {
+        "type": "array",
+        "title": "Opening Hours",
+        "description": "Array of opening hours by day",
+        "items": {
+          "type": "object",
+          "properties": {
+            "day": { "type": "string" },
+            "hours": { "type": "string" }
+          }
+        }
+      },
+      "placeId": {
+        "type": "string",
+        "title": "Google Place ID",
+        "description": "Unique Google identifier for this place"
+      },
+      "url": {
+        "type": "string",
+        "title": "Google Maps URL",
+        "description": "URL to the business's Google Maps place page"
+      },
+      "scrapedAt": {
+        "type": "string",
+        "title": "Scraped At",
+        "description": "ISO 8601 timestamp when the listing was scraped"
+      },
+      "_isNew": {
+        "type": "boolean",
+        "title": "Is New Listing",
+        "description": "Whether this listing was seen for the first time (true) or was already known from a previous run (false). Only present when incremental mode is enabled."
+      },
+      "_placeId": {
+        "type": "string",
+        "title": "Place ID (Hash)",
+        "description": "Stable hash identifier for this place. Used by incremental mode to track previously seen listings."
+      },
+      "_crmHeaders": {
+        "type": "string",
+        "title": "CRM CSV Headers",
+        "description": "CSV header line matching the selected CRM's import format."
+      },
+      "_crmRow": {
+        "type": "string",
+        "title": "CRM CSV Row",
+        "description": "CSV values for this row formatted for the selected CRM import."
       }
     },
-    "placeId": {
-      "title": "Google Place ID",
-      "description": "Unique Google identifier for this place",
-      "type": "string"
-    },
-    "url": {
-      "title": "Google Maps URL",
-      "description": "URL to the business's Google Maps place page",
-      "type": "string"
-    },
-    "scrapedAt": {
-      "title": "Scraped At",
-      "description": "ISO 8601 timestamp when the listing was scraped",
-      "type": "string"
-    },
-    "_isNew": {
-      "title": "Is New Listing",
-      "description": "Whether this listing was seen for the first time (true) or was already known from a previous run (false). Only present when incremental mode is enabled.",
-      "type": "boolean"
-    },
-    "_placeId": {
-      "title": "Place ID (Hash)",
-      "description": "Stable hash identifier for this place. Used by incremental mode to track previously seen listings.",
-      "type": "string"
-    },
-    "_crmHeaders": {
-      "title": "CRM CSV Headers",
-      "description": "CSV header line matching the selected CRM's import format.",
-      "type": "string"
-    },
-    "_crmRow": {
-      "title": "CRM CSV Row",
-      "description": "CSV values for this row formatted for the selected CRM import.",
-      "type": "string"
-    }
-  }
+    "additionalProperties": true
+  },
+  "views": {}
 }
