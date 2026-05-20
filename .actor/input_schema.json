@@ -1,0 +1,94 @@
+{
+  "title": "Google Maps Scraper Input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "searchQueries": {
+      "title": "Search Queries",
+      "type": "array",
+      "description": "List of search terms to query on Google Maps (e.g. plumbers in Austin, coffee shops NYC). Each query runs independently.",
+      "prefill": ["plumbers in Austin, TX", "coffee shops in San Francisco, CA"],
+      "editor": "stringList"
+    },
+    "maxResults": {
+      "title": "Max Results Per Query",
+      "type": "integer",
+      "description": "Maximum number of listings to scrape per search query.",
+      "default": 50,
+      "minimum": 1,
+      "maximum": 500
+    },
+    "extractEmails": {
+      "title": "Extract Emails",
+      "type": "boolean",
+      "description": "Visit each business website and attempt to extract email addresses. Increases run time significantly.",
+      "default": true
+    },
+    "extractPhone": {
+      "title": "Extract Phone Numbers",
+      "type": "boolean",
+      "description": "Extract phone numbers from listings.",
+      "default": true
+    },
+    "extractWebsite": {
+      "title": "Extract Website URLs",
+      "type": "boolean",
+      "description": "Extract business website URLs.",
+      "default": true
+    },
+    "extractRating": {
+      "title": "Extract Rating & Reviews",
+      "type": "boolean",
+      "description": "Extract star rating and review count.",
+      "default": true
+    },
+    "extractCoordinates": {
+      "title": "Extract Coordinates",
+      "type": "boolean",
+      "description": "Extract latitude/longitude of each listing.",
+      "default": true
+    },
+    "extractCategory": {
+      "title": "Extract Category",
+      "type": "boolean",
+      "description": "Extract business category (e.g. Restaurant, Plumber).",
+      "default": true
+    },
+    "extractHours": {
+      "title": "Extract Business Hours",
+      "type": "boolean",
+      "description": "Extract opening hours.",
+      "default": false
+    },
+    "maxConcurrency": {
+      "title": "Max Concurrency",
+      "type": "integer",
+      "description": "Maximum number of concurrent pages. Higher = faster but more likely to trigger rate limits.",
+      "default": 3,
+      "minimum": 1,
+      "maximum": 20
+    },
+    "proxyCountry": {
+      "title": "Proxy Country",
+      "type": "string",
+      "editor": "textfield",
+      "description": "ISO country code for proxy (e.g. US, GB, DE). Leave empty for automatic.",
+      "default": ""
+    },
+    "domain": {
+      "title": "Google Domain",
+      "type": "string",
+      "editor": "textfield",
+      "description": "Custom Google domain (e.g. google.co.uk, google.de). Leave empty for google.com.",
+      "default": ""
+    },
+    "maxTotalResults": {
+      "title": "Global Result Limit",
+      "type": "integer",
+      "description": "Hard limit on total listings across all queries. 0 means unlimited.",
+      "default": 0,
+      "minimum": 0
+    }
+  },
+  "required": ["searchQueries"]
+}

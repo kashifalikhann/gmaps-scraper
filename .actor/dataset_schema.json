@@ -1,0 +1,178 @@
+{
+    "actorSpecification": 1,
+    "fields": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+            "query": {
+                "type": "string",
+                "description": "Google Maps search query that produced this listing",
+                "nullable": true,
+                "example": "plumbers in Austin, TX"
+            },
+            "name": {
+                "type": "string",
+                "description": "Business name from the Google Maps listing",
+                "nullable": true,
+                "example": "Austin Plumbing Co"
+            },
+            "placeUrl": {
+                "type": "string",
+                "description": "Full URL of the Google Maps place page",
+                "nullable": true,
+                "example": "https://www.google.com/maps/place/Austin+Plumbing+Co/@30.2672,-97.7431,15z"
+            },
+            "scrapedAt": {
+                "type": "string",
+                "description": "ISO 8601 timestamp when the listing was scraped",
+                "nullable": true,
+                "example": "2026-05-20T12:00:00.000Z"
+            },
+            "address": {
+                "type": "string",
+                "description": "Street address of the business",
+                "nullable": true,
+                "example": "123 Main St, Austin, TX 78701"
+            },
+            "phone": {
+                "type": "string",
+                "description": "Phone number of the business",
+                "nullable": true,
+                "example": "+1 512-555-0123"
+            },
+            "website": {
+                "type": "string",
+                "description": "Website URL of the business",
+                "nullable": true,
+                "example": "https://www.austinplumbing.com"
+            },
+            "websiteDomain": {
+                "type": "string",
+                "description": "Domain extracted from the website URL",
+                "nullable": true,
+                "example": "austinplumbing.com"
+            },
+            "rating": {
+                "type": "number",
+                "description": "Average star rating of the business on Google Maps",
+                "nullable": true,
+                "example": 4.5
+            },
+            "reviewCount": {
+                "type": "number",
+                "description": "Total number of Google Maps reviews",
+                "nullable": true,
+                "example": 127
+            },
+            "category": {
+                "type": "string",
+                "description": "Business category as classified by Google Maps",
+                "nullable": true,
+                "example": "Plumber"
+            },
+            "coordinates": {
+                "type": "string",
+                "description": "Geographic coordinates (lat, lng)",
+                "nullable": true,
+                "example": "30.2672, -97.7431"
+            },
+            "hours": {
+                "type": "array",
+                "description": "Opening hours by day of the week",
+                "items": {
+                    "type": "string"
+                },
+                "nullable": true,
+                "example": [
+                    "Monday: 8:00 AM – 5:00 PM",
+                    "Tuesday: 8:00 AM – 5:00 PM",
+                    "Wednesday: 8:00 AM – 5:00 PM",
+                    "Thursday: 8:00 AM – 5:00 PM",
+                    "Friday: 8:00 AM – 5:00 PM",
+                    "Saturday: Closed",
+                    "Sunday: Closed"
+                ]
+            },
+            "emails": {
+                "type": "array",
+                "description": "Email addresses extracted from the business website",
+                "items": {
+                    "type": "string"
+                },
+                "nullable": true,
+                "example": [
+                    "contact@austinplumbing.com",
+                    "support@austinplumbing.com"
+                ]
+            },
+            "emailSource": {
+                "type": "string",
+                "description": "Method used to extract emails — html, jsonld+html, or undefined if not extracted",
+                "nullable": true,
+                "example": "jsonld+html"
+            }
+        },
+        "required": [],
+        "additionalProperties": true
+    },
+    "views": {
+        "overview": {
+            "title": "Overview",
+            "description": "Most important fields at a glance",
+            "transformation": {
+                "fields": [
+                    "name",
+                    "address",
+                    "phone",
+                    "emails",
+                    "website",
+                    "category",
+                    "rating",
+                    "reviewCount",
+                    "coordinates"
+                ]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "name": {
+                        "label": "Business Name",
+                        "format": "text"
+                    },
+                    "address": {
+                        "label": "Address",
+                        "format": "text"
+                    },
+                    "phone": {
+                        "label": "Phone",
+                        "format": "text"
+                    },
+                    "emails": {
+                        "label": "Emails",
+                        "format": "array"
+                    },
+                    "website": {
+                        "label": "Website",
+                        "format": "link"
+                    },
+                    "category": {
+                        "label": "Category",
+                        "format": "text"
+                    },
+                    "rating": {
+                        "label": "Rating",
+                        "format": "number"
+                    },
+                    "reviewCount": {
+                        "label": "Reviews",
+                        "format": "number"
+                    },
+                    "coordinates": {
+                        "label": "Coordinates",
+                        "format": "text"
+                    }
+                }
+            }
+        }
+    }
+}

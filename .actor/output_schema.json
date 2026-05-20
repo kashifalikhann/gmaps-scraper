@@ -1,0 +1,13 @@
+{
+    "actorOutputSchemaVersion": 1,
+    "title": "Google Maps Scraper Output",
+    "description": "Dataset containing scraped Google Maps listings with business details and contact information",
+    "properties": {
+        "dataset": {
+            "type": "string",
+            "title": "Results",
+            "description": "Dataset containing all scraped Google Maps listings",
+            "template": "{{links.apiDefaultDatasetUrl}}/items"
+        }
+    }
+}
